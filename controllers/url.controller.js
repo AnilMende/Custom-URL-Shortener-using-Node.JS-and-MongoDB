@@ -1,5 +1,5 @@
 const {nanoid} = require('nanoid');
-const URL = require('../models/url');
+const URL = require('../models/url.js');
 
 
 const generateNewShortUrl = async(req, res) => {
@@ -19,6 +19,24 @@ const generateNewShortUrl = async(req, res) => {
     return res.json({id : shortID});
 }
 
+
+const handleGetAnalytics = async (req, res) => {
+    const shortId = req.params.shortId;
+
+    const result = await URL.findOne({shortId});
+
+    if(!result){
+        return res.status(404).json({message : "Short URL not found"})
+    }
+
+    return res.json({
+        totalClicks : result.visitHistory.length, 
+        analytics : result.visitHistory
+    });
+
+}
+
 module.exports = {
-    generateNewShortUrl
+    generateNewShortUrl,
+    handleGetAnalytics
 }
