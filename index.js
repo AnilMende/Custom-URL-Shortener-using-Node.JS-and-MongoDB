@@ -1,7 +1,10 @@
 const express = require('express');
+const path = require('path');
 
 const { connectToMongoDB } = require('./connect.js');
 const urlRoute = require('./routes/url.router.js');
+const staticRoute = require('./routes/staticRoute.js');
+
 
 const URL = require('./models/url.js');
 
@@ -15,12 +18,18 @@ connectToMongoDB("mongodb://localhost:27017/short-url")
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
 
+app.set("view engine", "ejs");
+app.set("views", path.resolve('./views'));
+
+
 app.use('/url', urlRoute);
+
+app.use('/', staticRoute);
 
 
 // Redirects the user to the original URL
 
-app.get('/:shortId', async(req, res) => {
+app.get('/url/:shortId', async(req, res) => {
 
     const shortId = req.params.shortId;
 
@@ -38,5 +47,7 @@ app.get('/:shortId', async(req, res) => {
     }
     res.redirect(entry.redirectURL);
 });
+
+
 
 app.listen(PORT, () => console.log(`Server Started at PORT : ${PORT}`));
