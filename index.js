@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 
 const cookieParser = require('cookie-parser');
-const {restrictToLoggedInUsersOnly} = require('./middlewares/auth.js');
+const {restrictToLoggedInUsersOnly, checkAuth} = require('./middlewares/auth.js');
 
 const { connectToMongoDB } = require('./connect.js');
 
@@ -29,7 +29,7 @@ app.set("views", path.resolve('./views'));
 
 app.use('/url',restrictToLoggedInUsersOnly, urlRoute);
 app.use('/user', userRoute);
-app.use('/', staticRoute);
+app.use('/', checkAuth, staticRoute);
 
 
 
