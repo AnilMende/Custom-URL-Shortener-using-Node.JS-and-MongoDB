@@ -2,7 +2,8 @@ const express = require('express');
 const path = require('path');
 
 const cookieParser = require('cookie-parser');
-const {restrictToLoggedInUsersOnly, checkAuth} = require('./middlewares/auth.js');
+// const {restrictToLoggedInUsersOnly, checkAuth} = require('./middlewares/auth.js');
+const {checkForAuthentication,restrictTo} = require('./middlewares/auth.js');
 
 const { connectToMongoDB } = require('./connect.js');
 
@@ -22,19 +23,20 @@ connectToMongoDB("mongodb://localhost:27017/short-url")
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
 app.use(cookieParser());
+app.use(checkForAuthentication);
 
 app.set("view engine", "ejs");
 app.set("views", path.resolve('./views'));
 
 
-app.use('/url',restrictToLoggedInUsersOnly, urlRoute);
+// app.use('/url',restrictToLoggedInUsersOnly, urlRoute);
+app.use('/url', restrictTo(["NORMAL", "ADMIN"]) , urlRoute);
 app.use('/user', userRoute);
-app.use('/', checkAuth, staticRoute);
-
+// app.use('/', checkAuth, staticRoute);
+app.use('/', staticRoute);
 
 
 // Redirects the user to the original URL
-
 app.get('/url/:shortId', async(req, res) => {
 
     const shortId = req.params.shortId;
